@@ -10,21 +10,18 @@ access_ensure_project_level( DEVELOPER );
 	$f_format 			= gpc_get_string( 'format' );
 	$f_format_example 	= gpc_get_string( 'format_example' );
 
-	/* is customer exist?, is assembly number exist?, and is format exist?.
-	* Verify if c.name exist? > verify if a.number exist? > verify if format exist
-	* If none of them exist => .then 'INSERT'
-	* Else function UpdateCb().
-	*/
-	$result = add_format (
-					$f_customer_name,
-					$f_assembly_number,
-					$f_revision,
-					$f_format,
-					$f_format_example
-				);
-
-	$form_msg = (!($c_name_exist && $a_number_exist && $f_exist))
-					? plugin_lang_get( 'update_format' ) : plugin_lang_get( 'new_format' );
+	$new_customer = customer_name_unique ( $f_customer_name );
+	$new_assembly = assembly_revision_unique ( $f_assembly_number, $f_revision ,$new_customer );
+	$check_format = format_is_new ( $new_assembly );
+?>
+<?php
+	if ( $new_customer == 'true' || $new_assembly == 'true' || $check_format == 'true'){
+		$result = add_format ( $f_customer_name, $f_assembly_number, $f_revision, $f_format, $f_format_example, $new_customer, $new_assembly, $check_format );
+		$form_msg = plugin_lang_get( 'new_format' );
+	} else {					# FAILURE
+		$result = add_format ( $f_customer_name, $f_assembly_number, $f_revision, $f_format, $f_format_example, $new_customer, $new_assembly, $check_format );
+		$form_msg = plugin_lang_get( 'update_format' );
+	}
 ?>
 <div align="center">
 <?php

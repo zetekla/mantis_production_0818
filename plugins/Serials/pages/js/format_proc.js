@@ -1,11 +1,6 @@
 (function () {
     "use strict";
-    var dnm_data = {
-        time: $('.login-info-middle :first-child').text(),
-        list_count: 0
-    };
 
-    var xhr = {};
     var old;
     var oldh = {};
 
@@ -13,23 +8,23 @@
         return new Promise(function(suc, err){
             extTypeahead({
                 slt: "#field1",
-                url: "/mantislive/plugin.php?page=Serials/json/customer.php",
+                url: "/mantislive/plugin.php?page=Serials/model/json/customer.php",
                 callback: function(item){
                     var hash = {};
+                    /*global localStorage*/
                     if (localStorage.getItem("xhr")) {
                         old = localStorage.getItem("xhr");
                         oldh = JSON.parse(localStorage.getItem("xhr"));
                         hash = oldh;
                     }
-                    hash.id = item.id;
-					hash.name = item.nimi;
-					hash.group = item.group;
-					
+
+                    hash.customer_name = item.nimi;
+                    hash.customer_id = item.id;
+                    hash.group = item.group;
+
                     localStorage.setItem("xhr", JSON.stringify(hash));
-                    console.log(" # post-assign@fn1 $ print xhr ");
-                    console.log(localStorage.getItem("xhr"));
-                    console.log(" # post-assign@fn1 $ print old ");
-                    console.log(old);
+                    console.log(" # fn1 $ xhr ", localStorage.getItem("xhr"));
+                    console.log(" # fn1 $ old ", old);
                     setTimeout(function(){
                         suc(hash);
                     },10);
@@ -38,26 +33,23 @@
         });
     };
 
-    /*dnm_data.customer_name = xhr.nimi;
-    dnm_data.customer_id = xhr.id;*/
     var fn2 = function (o){
         return new Promise(function(suc, err){
             extTypeahead({
                 slt: "#field2",
                 url: {
                     type: "POST",
-                    url : "/mantislive/plugin.php?page=Serials/json/assembly.php",
-                    data: { 'customer_id' : o.id }
+                    url : "/mantislive/plugin.php?page=Serials/model/json/assembly.php",
+                    data: { 'id' : o.customer_id }
                 },
                 callback: function(item){
                     var hash = JSON.parse(localStorage.getItem("xhr"));
-                    o.number = item.nimi;
-                    hash.number = item.nimi;
+                    o.assembly = item.nimi;
+                    hash.assembly = item.nimi;
                     // console.log(dnm_data);
                     localStorage.setItem("xhr", JSON.stringify(hash));
-                    console.log(" # post-async@fn2 $ ");
-                    console.log(localStorage.getItem("xhr"));
-                    // $("#field3").val('');
+                    console.log(" # fn2 $ xhr", localStorage.getItem("xhr"));
+                    $("#field3").val('');
                     setTimeout(function(){
                         suc(o);
                     },10);
@@ -73,10 +65,10 @@
                 slt: "#field3",
                 url: {
                     type: "POST",
-                    url: "/mantislive/plugin.php?page=Serials/json/revision.php",
+                    url: "/mantislive/plugin.php?page=Serials/model/json/revision.php",
                     data : {
-                        number: o.number,
-                        id: o.id
+                        nimi: o.assembly,
+                        id: o.customer_id
                     }
                 },
                 callback: function(item){
@@ -90,22 +82,19 @@
                     };
 
                     localStorage.setItem("xhr", JSON.stringify(hash));
-                    console.log(" # post-async@fn3 $ print O and xhr ");
-                    console.log(JSON.stringify(o));
-                    console.log(localStorage.getItem("xhr"));
+                    console.log(" # fn3 $ print O ", JSON.stringify(o));
 
                     /* global ajaxPost */
                     ajaxPost({
-                        url: "/mantislive/plugin.php?page=Serials/json/format.php",
-                        d: { "id" : o.assembly_id },
+                        url: "/mantislive/plugin.php?page=Serials/model/json/format.php",
+                        data: { "id" : o.assembly_id },
                         callback: addformat
                     });
-					console.log(" # ajax post " + o.assembly_id);
+
                     setTimeout(function(){
                         suc(o);
                     },10);
                     // $("#field4").focus();
-                    // console.log(dnm_data);
                 }
             });
         });
@@ -122,18 +111,24 @@
             })
         ;
     };
-    exec();
+    
+    // initialization, comment out to save page loading time.
+    // exec();
+    
+    // set focus to sales_order field
 
+	//msg.style.visibility="visible";
+    //$("#msg").hide();
     $("#field3").on('keyup', function(e){
         e.preventDefault();
         var v = $(this).val();
         console.log(" ?oldh " + oldh.revision + " ?current " + v);
 
-        if ( t_cond(e.which) ){
+        if ( input_key_cond(e.which) ){
             var o ={
                 cond: oldh.revision !== v && v && $("#field2").val() === oldh.assembly,
                 id: $(this).attr("id"),
-                a: [4,5]
+                a: [4,5,6]
             };
             keyupFn(o);
         }
@@ -144,14 +139,14 @@
         var v = $(this).val();
         console.log(" ?oldh " + oldh.assembly + " ?current " + v);
         // define 'o' prior to call rinse(o.a) here;
-        
-        if ( t_cond(e.which) ){
+        /*global input_key_cond*/
+        if ( input_key_cond(e.which) ){
             // $("#typeahead-field3 > div > .typeahead-result").remove();
             var o ={
                 // cond: oldh.assembly !== v && v && $("#field1").val()===oldh.customer,
                 cond: oldh.assembly !== v && v,
                 id: $(this).attr("id"),
-                a: [3,4,5]
+                a: [3,4,5,6]
             };
             keyupFn(o);
         }
@@ -163,12 +158,12 @@
         var v = $(this).val();
 
         // if ( (47 < e.which && e.which < 91) || ( 95 < e.which && e.which < 106) ){
-        if ( t_cond(e.which) ){
+        if ( input_key_cond(e.which) ){
             var o ={
                 // cond: oldh.customer !== v && oldh.customer_name && v && $("#field2").val(),
                 cond: oldh.customer !== v && v,
                 id: $(this).attr("id"),
-                a: [2,3,4,5]
+                a: [2,3,4,5,6]
             };
             keyupFn(o);
         }
@@ -207,7 +202,7 @@
         }
     };
     })();
-    
+
     var rinse = (function(){
         return function(a){
             for (var i of a) {
@@ -217,35 +212,19 @@
             }
         };
     })();
-    
+
     var addformat = function(data){
         $.map(data, function(obj) {
-           /*  dnm_data.format = obj.format;
-            dnm_data.format_id = obj.format_id;
-            dnm_data.format_example = obj.format_example; */
-            $("#field4").val(obj.nimi);
+            console.log("=> rendering format ", obj);
             $("#field5").val(obj.sample);
-            // console.log(" # check if old is accessible inside ajax of fn3 " + old);
+            $("#field6").val(obj.nimi);
+            var hash = JSON.parse(localStorage.getItem("xhr"));
+            hash.format = obj.nimi;
+            hash.format_id = obj.id;
+            hash.format_example = obj.sample;
+            localStorage.setItem("xhr", JSON.stringify(hash));
+            console.log(localStorage.getItem("xhr"));
         });
     };
-
-    var t_cond = (function(){
-        return function(x){
-        return range(x,47,91) || range(x,95,106);
-        };
-    })();
-
-    var range = (function(){
-        return function(x,min,max){
-        return (min < x && x < max);
-        };
-    })();
-
-    var delay = (function(){
-        var timer = 0;
-        return function(callback, ms){
-            clearTimeout (timer);
-            timer = setTimeout(callback, ms);
-        };
-    })();
 })();
+

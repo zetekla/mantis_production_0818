@@ -3,6 +3,7 @@ $s_menu_serials_link = "Serial Scan";
 $s_plugin_Serials_title = "Serial Number Entry Form";
 $s_plugin_Serials_manage = "Manage Serials Plugin";
 $s_plugin_Serials_format = "Format";
+$s_plugin_Serials_format_helper = "Format Helper";
 $s_plugin_Serials_format_title = "Serials Format";
 $s_plugin_Serials_format_example = "Format Example";
 $s_plugin_Serials_customer_name = "Customer";

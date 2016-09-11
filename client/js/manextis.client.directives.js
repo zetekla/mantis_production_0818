@@ -50,9 +50,16 @@ function resultFetch($location, $http){
 	            	scope.stock = null;
 	            	scope.no_query = true;
 	            	scope.no_insertion = true;
-					$("input[name='custom_field_1']").val("");
-					$("input[name='custom_field_2']").val("");
-					$("input[name='custom_field_3']").val("");
+					scope.assembly = null;
+					scope.revision = null;
+					scope.sales_order = null;
+					scope.customer = null;
+					scope.purchase_order = null;
+					scope.quantity = null;
+					scope.due_date = null;
+					scope.unique_key = null;
+					var hash = JSON.parse(localStorage.getItem("xhr"));
+					//console.log(hash);
 			        $http.get( URL_JSON_MANTIS_MANEX,
 			        {
 			            params: data
@@ -126,10 +133,17 @@ function resultFetch($location, $http){
 					                    timestamp: Math.floor(Date.now() / 1000)
 					                };
 					                console.log('client.Fullhouse ', ob[0]);
-									// this should be update in the future to associate the custom field name if possible.  Likely need to modify how the custom field is generated.
-									$("input[name='custom_field_1']").val(ob[0].assembly);
-									$("input[name='custom_field_2']").val(ob[0].revision);
-									$("input[name='custom_field_3']").val(ob[0].so);
+									scope.assembly = ob[0].assembly;
+									$('input[name="custom_field_1"]').val(ob[0].assembly);
+									scope.revision = ob[0].revision;
+									$('input[name="custom_field_2"]').val(ob[0].revision);
+									scope.sales_order = ob[0].so;
+									$('input[name="custom_field_3"]').val(ob[0].so);
+									scope.customer = ob[0].customer_name;
+									scope.purchase_order = ob[0].customer_po;
+									scope.quantity = ob[0].qty;
+									scope.due_date = convertTimestamp(ob[0].due_date);
+									scope.unique_key = ob[0].key;																
 					            });
 				        	}
 							
@@ -159,9 +173,16 @@ function resultFetch($location, $http){
 			            }
 			        });
 			    } else {
-					$("input[name='custom_field_1']").val("");
-					$("input[name='custom_field_2']").val("");
-					$("input[name='custom_field_3']").val("");					
+					scope.error = null;
+					scope.assembly = null;
+					scope.revision = null;
+					scope.sales_order = null;
+					scope.customer = null;
+					scope.purchase_order = null;
+					scope.quantity = null;
+					scope.due_date = null;
+					scope.unique_key = null;
+					$("#msg").show();
 				}
     		});
 		},
@@ -221,8 +242,32 @@ link: link func is not dependency inject
 link: function(scope, elem, attrs){}
 */
 
-
-
+function convertTimestamp(timestamp) {
+  var d = new Date(timestamp * 1000),	// Convert the passed timestamp to milliseconds
+		yyyy = d.getFullYear(),
+		mm = ('0' + (d.getMonth() + 1)).slice(-2),	// Months are zero based. Add leading 0.
+		dd = ('0' + d.getDate()).slice(-2),			// Add leading 0.
+		hh = d.getHours(),
+		h = hh,
+		min = ('0' + d.getMinutes()).slice(-2),		// Add leading 0.
+		ampm = 'AM',
+		time;
+			
+	if (hh > 12) {
+		h = hh - 12;
+		ampm = 'PM';
+	} else if (hh === 12) {
+		h = 12;
+		ampm = 'PM';
+	} else if (hh == 0) {
+		h = 12;
+	}
+	
+	// ie: 2013-02-18, 8:35 AM	
+	time = mm + '-' + dd + '-' + yyyy;
+	$("#msg").hide();
+	return time;
+}
 /*The main reason to change binding from @ to = is that
 one way binding(@) only supports strings
 whereas 2 way binding(=) supports from simple strings to complex objects. */

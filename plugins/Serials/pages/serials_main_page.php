@@ -1,230 +1,219 @@
 <?php
-require( "serials_api.php" );
+require_once( "plugins/Serials/core/format_check_api.php" );
 require_once( 'current_user_api.php' );
 access_ensure_global_level( plugin_config_get( 'serials_view_threshold' ) );
-$row = user_get_row( auth_get_current_user_id() );
-extract( $row, EXTR_PREFIX_ALL, 'u' );
 html_page_top1();
 html_page_top2();
 ?>
-<link rel="stylesheet" href="plugins/Serials/pages/jquery-typeahead-2.1.3/dist/jquery.typeahead.min.css">
-<link rel="stylesheet" href="plugins/Serials/pages/css/custom.css">
 <script>
-  function preventBack(){window.history.forward();
-  setTimeout("preventBack()", 0);
-  window.onunload=function(){null};
-}
-  function printDiv() {
-	 var printpage = window.open ("","F05400-5 Rev 01 02/24/16");
-	 var printcontents="";
-	 var now = new Date();
-	 var today = now.toLocaleDateString();
-	    printcontents += "<html>";
-	    printcontents += "<head>";
-		printcontents += "<title>F05400-5 Rev 01 02/24/16<\/title>";
-		printcontents += "<style>";
-		printcontents += "   input[type=\"text\"]{font-family:arial;font-size:12;padding:5px;font-weight:bold;width:100%;display:table-cell;margin:0px 10px;}";
-		printcontents += "   input[type=\"checkbox\"]{transform:scale(1.5);font-family:arial;font-size:12;padding:5px;font-weight:bold;}";
-		printcontents += "   div[class=\"box\"]{float:left;display:table;width:100%;}";
-		printcontents += "   div{float:left;}";
-		printcontents += "   .col-md-3{float:left;min-width:150px;max-width:315px;margin-left:5px;margin-right:5px}";
-		printcontents += "   p{display:table-cell;width:1px;white-space: nowrap;}";
-		printcontents += "<\/style>";
-		printcontents += "<\/head>";
-		printcontents += "<div style=\"width:670px;font-family:arial;font-size:12px;\">";
-		printcontents += "   <img src=\"http:\/\/www.eminc.com\/skin\/skin1\/images\/en\/framework\/top_banner.jpg\" width=\"670\">";
-		printcontents += "   <p1 style=\"margin-left:15px;font-size:12;font-weight:bold;width:670px;\">3519 W. WARNER AVE., SANTA ANA, CA 92704<\/p1>";
-		printcontents += "   <hr>";
-		printcontents += "   <h2 style=\"text-align:center;\">Serial List<\/h2>";
-		printcontents += "   <div style=\"width:425px;margin:0px 15px;font-weight:bold;\">";
-		printcontents += "      <div class=\"box\"><p>Assembly Number: <\/p><input type=\"text\" value=\""+ $('input[name="assembly"]').val()+"\"\/><\/div>";
-		printcontents += "      <div class=\"box\"><p>Customer Name: <\/p><input type=\"text\" value=\"" + $('input[name="customer"]').val()+"\"\/><\/div>";
-		printcontents += "      <div class=\"box\"><p>Customer P.O. Number: <\/p><input type=\"text\" \/><\/div>";
-		printcontents += "      <div class=\"box\"><p>Sales Order Number: <\/p><input type=\"text\" value=\""+ $('input[name="sales_order"]').val()+"\"\/><\/div>";
-		printcontents += "      <div class=\"box\"><p>Quantity Shipped: <\/p><input type=\"text\" \/><\/div>";
-		printcontents += "      <div class=\"box\"><p>Date of Shipment: <\/p><input type=\"text\" value=\""+ today +"\"\/><\/div>";
-		printcontents += "   <\/div>";
-		printcontents += "   <div style=\"width:185px;float:left;font-weight:bold;margin-right:15px;\">";
-		printcontents += "      <div class=\"box\"><p>Rev: <\/p><input type=\"text\" value=\"" + $('input[name="revision"]').val() +"\"\/><\/div>";
-		printcontents += "      <div style=\"height:54px;width:193px;\"> <\/div>";
-		printcontents += "      <div class=\"box\"><p>Lot Date Code: <\/p><input type=\"text\" \/><\/div>";
-		printcontents += "      <div class=\"box\"><p>Order Quantity: <\/p><input type=\"text\" \/><\/div>";
-		printcontents += "   <\/div>";
-		printcontents += "   <div style=\"width:670\"><hr><\/div> ";
-		printcontents += "   <div style=\"margin-left:10px;width:640\">"+ $("#log-wrapper").html() +"<\/div>";
-		printcontents += "<\/div>";
-		printcontents += "<\/html>";
-     printpage.document.write(printcontents);
-     printpage.document.close();
-}
-  function reload(){
-	  location.reload();
-}
-  function cofc(){
-	    var cofcpage = window.open ("","ASF0509-1 Rev 03 02/24/16");
-		var cofcContent="";
-		var now = new Date();
-		var today = now.toLocaleDateString();
-	    cofcContent += "<html>";
-	    cofcContent += "<head>";
-		cofcContent += "<title>ASF0509-1 Rev 03 02/24/16<\/title>";		
-		cofcContent += "<style>";
-		cofcContent += "   input[type=\"text\"]{font-family:arial;font-size:12;padding:5px;font-weight:bold;width:100%;display:table-cell;margin:0px 10px;}";
-		cofcContent += "   input[type=\"checkbox\"]{transform:scale(1.5);font-family:arial;font-size:12;padding:5px;font-weight:bold;}";
-		cofcContent += "   div{float:left;}";
-		cofcContent += "   div[class=\"box\"]{float:left;display:table;width:100%;}";
-		cofcContent += "   p{display:table-cell;width:1px;white-space: nowrap;}";
-		cofcContent += "<\/style>";
-		cofcContent += "<div style=\"width:670px;font-family:arial;font-size:12px;\">";
-		cofcContent += "   <img src=\"http:\/\/www.eminc.com\/skin\/skin1\/images\/en\/framework\/top_banner.jpg\" width=\"670\">";
-		cofcContent += "   <p1 style=\"margin-left:15px;font-size:12;font-weight:bold;width:670px;\">3519 W. WARNER AVE., SANTA ANA, CA 92704<\/p1>";
-		cofcContent += "   <hr>";
-		cofcContent += "   <h2 style=\"text-align:center;\">CERTIFICATE OF COMPLIANCE<\/h2>";
-		cofcContent += "   <div style=\"width:425px;margin:0px 15px;font-weight:bold;\">";
-		cofcContent += "      <div class=\"box\"><p>Assembly Number: <\/p><input type=\"text\" value=\""+ $('input[name="assembly"]').val()+"\"\/><\/div>";
-		cofcContent += "      <div class=\"box\"><p>Customer Name: <\/p><input type=\"text\"\ value=\""+ $('input[name="customer"]').val()+"\"\/><\/div>";
-		cofcContent += "      <div class=\"box\"><p>Customer P.O. Number: <\/p><input type=\"text\" \/><\/div>";
-		cofcContent += "      <div class=\"box\"><p>Sales Order Number: <\/p><input type=\"text\" value=\""+ $('input[name="sales_order"]').val()+"\"\/><\/div>";
-		cofcContent += "      <div class=\"box\"><p>Quantity Shipped: <\/p><input type=\"text\" \/><\/div>";
-		cofcContent += "      <div class=\"box\"><p>Date of Shipment: <\/p><input type=\"text\" value=\""+ today +"\"\/><\/div>";
-		cofcContent += "   <\/div>";
-		cofcContent += "   <div style=\"width:185px;float:left;font-weight:bold;margin-right:15px;\">";
-		cofcContent += "      <div class=\"box\"><p>Rev: <\/p><input type=\"text\" value=\"" + $('input[name="revision"]').val() +"\"\/><\/div>";
-		cofcContent += "      <div style=\"height:54px;width:193px;\"> <\/div>";
-		cofcContent += "      <div class=\"box\"><p>Lot Date Code: <\/p><input type=\"text\" \/><\/div>";
-		cofcContent += "      <div class=\"box\"><p>Order Quantity: <\/p><input type=\"text\" \/><\/div>";
-		cofcContent += "   <\/div>";
-		cofcContent += "   <div style=\"width:670px;margin-left:15px\">";
-		cofcContent += "      <div style=\"width:640px;font-weight:bold;\"><br><br>This is to certify that the above shipping quantity against the referenced Purchase Order is in compliance with the contract requirements, specifications, and drawings. Please Check the Box to meet the customer's (Test or 2RoHS)<\/div>";
-		cofcContent += "      <div style=\"width:75px;font-weight:bold;\"><br><input type=\"checkbox\"> TEST<\/div>";
-		cofcContent += "      <div style=\"width:565px\"><br>This is to certify that the printed wiring assemblies listed below have been tested conforming to specifications requirements. Test reports are on file and will be made available for further examination to any authorized representative upon written request.<\/div>";
-		cofcContent += "      <div style=\"width:75px;font-weight:bold;\"><br><input type=\"checkbox\"> 2RoHS<\/div>";
-		cofcContent += "      <div style=\"width:565px;\"><br>This is to declare that our Surface Mount Technology and Through factory at Express Manufacturing Inc. is capable of manufacturing products meeting requirements of Restriction on Hazardous Substance 2RoHS.<br><br>\"EMI certifies the following assemblies were manufactured in compliance with the EU Directive 2015\/863\/EU, Restriction of Use of Hazardous Substances 2RoHS Published June 4,2015. EMI certifies that all materials they provide and use in assembling this product meet the requirements of the directive.\"<\/div>";
-		cofcContent += "      <div style=\"width:640px\"><br><textarea style=\"width:640px;height:220px;padding:5px;font-size:12px;font-family:arial\"><\/textarea><\/div>";
-		cofcContent += "      <div style=\"width:640px;\"><br><\/div>";
-		cofcContent += "      <div><h4 style=\"text-align:center;width:670px\">Quality Assurance Representative<\/h4><\/div>";
-		cofcContent += "      <div style=\"width:270px;display:table;\"><p>Name: <\/p><input style=\"width:225px;\" value=\"" + $('input[name="real_name"]').val() +"\"\/><\/div>";
-		cofcContent += "      <div style=\"width:100px;display:table;\"><p>ID: <\/p><input style=\"width:75px;\"><\/div>";
-		cofcContent += "      <div style=\"width:270px;display:table;\"><p>Signature: <\/p><input style=\"width:210px;\"><\/div>";
-		cofcContent += "   <\/div>";
-		cofcContent += "   <div><br>";
-		cofcContent += "   <hr style=\"width:670px;float:left\">";
-		cofcContent += "<\/div> ";
-    cofcpage.document.write(cofcContent);
-	cofcpage.document.close();
-}	
+	function preventBack(){
+		window.history.forward();
+		setTimeout("preventBack()", 0);
+		window.onunload=function(){null};
+	}
 </script>
-<link rel="stylesheet" href="plugins/Serials/pages/bootstrap/css/bootstrap.css">
-<div style="margin-left:30px ; margin-top:10px">
-<?php
-if ( access_has_project_level( plugin_config_get('format_threshold') ) ) {
-    global $g_config_page;
-    print_bracket_link( $g_format_page, plugin_lang_get( 'format_title') );
-}
-?>
-<button type="button" id="cofc" class="btn btn-primary" onclick="cofc()"><span class="glyphicon glyphicon-list-alt"></span><b> C of C</b></button>
+<script src="plugins/UTILS_plugin/bower_components/mantis_extended_kernel/client/js/buildscript.js" type="text/javascript"></script>
+<link href="client/css/manextis.client.style.css" rel="stylesheet" />
+<script>
+	/*global ENV_MODE, UTILS_BOWER_URL, MANTIS_EXTENDED_KERNEL, PLUGIN_URL_SERIALS*/
+	/*global loadScript */
+	loadScript({
+		path: UTILS_BOWER_URL+"/jquery-typeahead-2.1.3/dist/",
+		ref: "jquery.typeahead.min.css"
+	}, {
+		path: UTILS_BOWER_URL+"/bootstrap/css/",
+		ref: "bootstrap.css"
+	}, {
+		path: PLUGIN_URL_SERIALS+"/js/view_model/",
+		ref: "ui_data.js"
+	});
+	var user = "<?php echo user_get_field( auth_get_current_user_id() , 'realname' ) ?>";
+	var userid = "<?php echo preg_replace('/\D/','', user_get_field( auth_get_current_user_id() , 'username' )) ?>"
+</script>
+<section id="ui_data"></section>
+<form id="myform" name="form" ng-app="myApp" >
+<div class="container col-sm-12">
+	<div class="pull-right" style="position:absolute; background: white; right: 10px;  z-index: 1000">
+			<button type="button" id="reset" class="btn btn-secondary reset "><span class="glyphicon glyphicon-refresh"></span>
+			<b>Reset</b></button>
+	<?php
+		if ( access_has_project_level( plugin_config_get('format_threshold') ) ) {
+	?>
+	<button id="format_config" class="btn btn-primary pull-right" type="button" ng-model="collapsed" ng-click="collapsed=!collapsed"><span class="glyphicon glyphicon-qrcode"></span>
+	  Format Config
+	</button>
+	<br>
+	<div ng-show="collapsed" class="panel panel-default">
+	<div class="panel-body">
+	<span class="pull-left">Unique Key</span>
+	<input class="form-control pull-right" id="key" type="text" size="25" name="unique_key" ng-model='unique_key'/><br>
+	<span class="pull-left">Format Example</span>
+	<input class="form-control pull-right" id="format_example" type="text" size="25" ng-model='format_example'/><br>
+	<span class="pull-left">Format Code</span>
+	<input class="form-control pull-right" id="format" type="text" size="25" ng-model='format'/><br>
+	<br>
+	<button id="format_update" type="button" class="pull-right btn btn-primary"> Update format</button>
+	</div>
+	</div>
+	<?php		
+		}else{
+	?>
+	<br>
+	<input class="pull-right hidden" id="key" type="text" size="15" name="unique_key" ng-model='unique_key'/>
+	<?php
+		}
+		/*$t_now = date( config_get( 'complete_date_format' ) );
+		echo "<span id='time'>". $t_now ."</span>";*/
+	?>
+	</div>
+	<div id="top-function-wrapper">
+		<button type="button" id="search" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span>
+			<b>Search</b></button>
+		<button type="button" id="html-painike" class="btn btn-primary print"><span class="glyphicon glyphicon-print"></span>
+			<b>Print</b></button>
+		<button type="button" id="cofc" class="btn btn-primary"><span class="glyphicon glyphicon-list-alt"></span>
+			<b>C of C</b></button>
+	</div>
+	<div class="col-sm-12">
+		<div class="input-group pull-left col-sm-3" >
+			<b>Work Order Number:</b>
+			<div class="typeahead-container">
+				<div >
+					<input id="field0" class="form-control" type="text" name="work_order" size="32" maxlength="32" value="" placeholder="Example 123456A" ng-model='query'></input>
+					<span id="msg" ng-show="query" ng-cloak>
+						<div class="alert alert-warning" ng-show="error" ng-cloak>
+							<strong>No Results Found for {{query}}!</strong><br>Please Try Again.
+						</div>
+						<img ng-show="!error" src="images/load-am.gif" style="position: absolute;top: -2px;right:10px; z-index: 2" ng-cloak>
+					</span>
+				</div>	
+			</div>
+		</div>
+		<div class="input-group pull-left col-sm-3">
+			<b>PO Number:</b>
+			<div class="typeahead-container">
+				<div>
+					<input class="form-control" type="text" name="purchase_order" size="32" maxlength="32" value="" ng-model='purchase_order' disabled></input>
+				</div>	
+			</div>
+		</div>
+		<div class="input-group pull-left col-sm-3">
+			<b>Quantity:</b>
+			<div class="typeahead-container">
+				<div>
+					<input  class="form-control" type="text" name="quantity" size="32" maxlength="32" value="" ng-model='quantity' disabled></input>
+				</div>	
+			</div>
+		</div>
+		<div class="input-group pull-left col-sm-3">
+			<b>Due Date:</b>
+			<div class="typeahead-container">
+				<div>
+					<input  class="form-control" type="text" name="due_date" size="32" maxlength="32" value="" ng-model='due_date' disabled></input>
+				</div>	
+			</div>
+		</div>
+		
+	</div>	
+	<div id="info" class="col-sm-12">
+		<div id="typeahead-field7" class="input-group pull-left col-sm-3">
+		<b>Sales Order</b>
+			<div class="typeahead-container">
+				<div>
+					<input class="form-control" id="field7" type="text" size="100" value="" name="sales_order" ng-model='sales_order' disabled></input>
+				</div>
+			</div>
+		</div>
+
+		<div id="typeahead-field1" class="input-group pull-left col-sm-3">
+		<b>Customer</b>
+			<div class="typeahead-container">
+				<div>
+					<span class="typeahead-query">
+						<input class="form-control" id="field1" type="text" size="100" name="customer" ng-model='customer' disabled></input>
+					</span>
+				</div>
+			</div>
+		</div>
+
+		<div id="typeahead-field2"  class="input-group pull-left col-sm-3">
+		<b>Assembly Number</b>
+			<div class="typeahead-container">
+				<div>
+					<span class="typeahead-query">
+						<input class="form-control" id="field2" type="text" size="100" name="assembly" ng-model='assembly' disabled></input>
+					</span>
+				</div>
+			</div>
+		</div>
+
+		<div id="typeahead-field3"  class="input-group pull-left col-sm-3">
+		<b>Revision</b>
+			<div class="typeahead-container">
+				<div>
+					<span class="typeahead-query">
+						<input class="form-control" id="field3" type="text" size="100" name="revision" ng-model='revision' disabled></input>
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+<result-fetch></result-fetch>
+	<div id="printable">
+		<div id="log-wrapper" class="col-offset-1 col-xs-12 right-scroll pull-right"></div>
+	</div>
+
+	<div class="row no-print">
+		<div id="scan_input" class="input-group input-group-lg col-sm-12 col-centered">
+		  <span class="input-group-addon" id="sizing-addon1">Scan Input</span>
+		  <input type="text" id="scan_result" name="scan_input" class="form-control" placeholder="Scan Serial Number Barcode - Auto Submit" aria-describedby="sizing-addon1">
+		</div>
+	</div>
+
+	<div class="hidden no-print" id="log-verify"></div>
+
+	<div id="konsoli_loki">
+		<div id="virhe" class="col-md-12 alert"></div>
+		<div id="virhe_kuvaus" class="alert"></div>
+	</div>
+
+	<div class="row" style="padding-left:20px ; padding-right:20px ;padding-top:20px">
+		<div id="search-wrapper" class="col-md-12 right-scroll " style="border-radius: 4px; border: 1px solid transparent"></div>
+	</div>
 </div>
-	<form>
-		<div class="container-fluid">
-			<div class="row">
-				<div id="top-function-wrapper" class="col-md-3">
-					</br>
-						<button type="button" id="search" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span>
-							<b>Search</b></button>
-
-
-						<button type="button" id="print" class="btn btn-primary print" onclick="printDiv()"><span class="glyphicon glyphicon-print"></span>
-							<b>Print</b></button>
-						<button type="button" id="reset" class="btn btn-secondary reset" onclick="reload()"><span class="glyphicon glyphicon-refresh" ></span>
-							<b>Reset</b></button>
-				</div>		
-				<div class="col-md-9">
-					<div class="input-group pull-left col-md-3" id="typeahead-field1">
-						<b>Sales Order:</b></br> 
-						<div class="typeahead-container">
-							<div class="typeahead-field">
-								<input id="field1" type="text" size="100" name="sales_order" required/>
-							</div>
-						</div>
-					</div>
-
-					<div class="input-group pull-left col-md-3" id="typeahead-field2">
-						<b>Customer:</b></br>
-
-						<div class="typeahead-container">
-							<div class="typeahead-field">
-								<span class="typeahead-query">
-									<input id="field2" type="text" size="100" name="customer" required/>
-								</span>
-							</div>
-						</div>
-					</div>
-					<div class="input-group pull-left col-md-3" id="typeahead-field3">
-						<b>Assembly:</b></br>
-
-						<div class="typeahead-container">
-							<div class="typeahead-field">
-								<span class="typeahead-query">
-									<input id="field3" type="text" size="100" name="assembly" required/>
-								</span>
-							</div>
-						</div>
-					</div>
-
-					<div class="input-group pull-left col-md-3" id="typeahead-field4">
-						<b>Revision:</b></br>
-
-						<div class="typeahead-container">
-							<div class="typeahead-field">
-								<span class="typeahead-query">
-									<input id="field4" type="text" size="100" name="revision" required/>
-								</span>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="row" style="padding-left:20px ; padding-right:20px ;padding-top:20px">	
-				<div id="log-wrapper" class="col-md-12 right-scroll " style="border-radius: 4px; border: 1px solid transparent"></div>
-			</div>
-			<div class="row">
-				<div class="container col-sm-12 no-print">
-				<div class="row no-print">
-					<div id="scan_input" class="input-group input-group-lg col-sm-12 col-centered">
-					  <span class="input-group-addon" id="sizing-addon1">Scan Input</span>
-					  <input type="text" id="scan_result" name="scan_input" class="form-control" placeholder="Scan Serial Number Barcode" aria-describedby="sizing-addon1">
-					</div>
-				</div>
-				<input type="hidden" name="format" id="field5">
-				<input type="hidden" name="format_example" id="field6">
-				<input type="hidden" name="assembly_id" id="field7">
-				<input type="hidden" name="customer_id" id="field8">
-				<input type="hidden" name="list_count" id="field9"> 
-                <input type="hidden" name="real_name" value=<?php echo '"'. $u_realname . '"';?> id="field10">
-				<div class="hidden no-print" id="result"></div>
-				<div id="konsoli_loki">
-					<div id="virhe" class="alert"></div>
-					<div id="virhe_kuvaus" class="alert"></div>
-				</div>
-				<div class="row" style="padding-left:20px ; padding-right:20px ;padding-top:20px">	
-					<div id="search-wrapper" class="col-md-12 right-scroll " style="border-radius: 4px; border: 1px solid transparent"></div>
-				</div>
-				</div>
-			</div>
-		</div>	
-	</form>
-<script src="plugins/Serials/pages/jquery/jquery-1.11.3.min.js" type="text/javascript" ></script>
-<script src="plugins/Serials/pages/jquery-typeahead-2.1.3/dist/jquery.typeahead.min.js" type="text/javascript" ></script>	
-<script src="plugins/Serials/pages/js/format_proc_api.js" type="text/javascript"></script>	
-<script src="plugins/Serials/pages/js/front.js" type="text/javascript"></script>
-
-
-
-
-<div style="margin-left:5px ; margin-right:5px">
-
+</form>
+<script>
+	/*global loadScript */
+	loadScript({
+		path: UTILS_BOWER_URL+"/jquery/",
+		ref: "jquery-1.11.3.min.js",
+		// async: true
+	},{
+		path: UTILS_BOWER_URL+"/jquery-typeahead-2.1.3/dist/",
+		ref: "jquery.typeahead.min.js"
+	},{
+		path: UTILS_BOWER_URL+"/jQuery-Plugin-Js/",
+		ref: "jQuery.print.js"
+	},{
+		path: MANTIS_EXTENDED_KERNEL+"/client/js/",
+		ref: "ajax_typeahead_api.js"
+	},{
+		path: PLUGIN_URL_SERIALS+"/js/",
+		ref: ["format_proc.js", "process_api.js", "front.js"]
+	},{
+		path: MANTIS_EXTENDED_KERNEL + "/client/css/",
+		ref: ["default.css"]
+		// type: "media" || type: "all"
+	});
+</script>
+<script src="client/js/jquery.js"></script>
+<script src="client/js/angular.js"></script>
+<script src="client/js/moment.min.js"></script>
+<script src="client/js/angular-momentjs.min.js"></script>
+<script src="client/js/manextis.client.filters.js"></script>
+<script src="client/js/manextis.client.directives.js"></script>
+<script src="client/js/manextis.client.controller.js"></script>
 <?php
-
-html_page_bottom1();
-echo "</div>"
+html_page_bottom1( __FILE__ );
+// echo lang_get( 'word_separator' );
 ?>
